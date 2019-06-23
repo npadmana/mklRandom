@@ -1,0 +1,13 @@
+
+[brick]
+author = "nikhil.padmanabhan@gmail.com"
+name = "mklRandom"
+version = "0.1.0"
+chplVersion = "1.19.0"
+
+[dependencies]
+
+
+[external]
+#We require Intel MKL, but this is failing on my laptop right now.
+#intel-mkl = "2019.3.199"
