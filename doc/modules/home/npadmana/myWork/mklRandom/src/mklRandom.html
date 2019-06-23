@@ -1,0 +1,929 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>mklRandom &mdash; chpldoc 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="chpldoc 0.0.1 documentation" href="../../../../../../index.html"/>
+        <link rel="prev" title="chpldoc documentation" href="../../../../../../index.html"/> 
+
+  
+  <script src="../../../../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../../../../index.html" class="icon icon-home"> chpldoc
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../index.html">chpldoc documentation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">mklRandom</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#compilation">Compilation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#types">Types:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performance">Performance:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parallelization-strategies">Parallelization strategies:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#distributed-arrays">Distributed Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multivariate-distributions">Multivariate Distributions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../../../../index.html">chpldoc</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../../index.html">Docs</a> &raquo;</li>
+      
+    <li>mklRandom</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../../../../../_sources/modules/home/npadmana/myWork/mklRandom/src/mklRandom.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-mklRandom"></span><div class="section" id="mklrandom">
+<h1>mklRandom<a class="headerlink" href="#mklrandom" title="Permalink to this headline">¶</a></h1>
+<p><strong>Usage</strong></p>
+<div class="highlight-chapel"><div class="highlight"><pre><span></span><span class="k">use</span> <span class="nx">mklRandom</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This module provides access to the MKL VSL random number generation libraries.</p>
+<div class="section" id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Permalink to this headline">¶</a></h2>
+<p>Include the appropriate flags for linking with MKL on your system. The MKL
+link line advisor is useful for this. This requires the 2019 Release 3 version
+of MKL or later.</p>
+</div>
+<div class="section" id="types">
+<h2>Types:<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h2>
+<p>For now, real types are assumed to be c_double==real(64) and integer types are
+c_int==int(32). In a lot of the library, we use the Chapel int, and the user
+is expected to ensure that these are appropriately bounded.</p>
+</div>
+<div class="section" id="performance">
+<h2>Performance:<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h2>
+<p>It is advantageous to generate a large number of random numbers at the same time. While
+we offer a method to generate single random numbers, that is not optimal from a performance
+standpoint.</p>
+</div>
+<div class="section" id="parallelization-strategies">
+<h2>Parallelization strategies:<a class="headerlink" href="#parallelization-strategies" title="Permalink to this headline">¶</a></h2>
+<p>NOTE : Given that the appropriate parallelization strategy is quite sensitive to the exact
+application, we do not implement a default parallelization strategy but leave that up to the
+user. We highlight some demonstrations of these in the test codes.</p>
+<p>NOTE : We recommend reading the Intel Notes on Vector Statistics for more details; we largely do not
+duplicate this information here.</p>
+<p>There are three parallelization strategies we support :</p>
+<ol class="arabic simple">
+<li>Independent streams : One can initialize each stream differently. Also the WH and MT2203
+generators support multiple streams (273 and 6024 respectively) and we support initializing
+these with those streams.</li>
+<li>Skip Ahead : A large number of generators support skipping ahead. This is a convenient way
+to parallelize, if you know how many random numbers you need.</li>
+<li>Leap Frog : One can interleave the random number streams. This is useful when you know the
+number of streams required (and this is a relatively small number).</li>
+</ol>
+<p>NOTE : For the skipAhead methods, it is important to remember that this applies to the underlying
+stream and not the distribution. Generating a random variate from a distribution can sometimes
+require more than one basic random number.</p>
+</div>
+<div class="section" id="distributed-arrays">
+<h2>Distributed Arrays<a class="headerlink" href="#distributed-arrays" title="Permalink to this headline">¶</a></h2>
+<p>The fill method currently does not support distributed arrays. We leave it up to the user
+to fill these in. In particular, some care needs to be taken if reproducibility is to be guaranteed.
+We plan to include some examples of how to do this.</p>
+</div>
+<div class="section" id="multivariate-distributions">
+<h2>Multivariate Distributions<a class="headerlink" href="#multivariate-distributions" title="Permalink to this headline">¶</a></h2>
+<p>MKL currently includes GaussianMV and Multinomial multivariate distributions. These are currently
+not implemented, although this is planned.</p>
+<p>In addition, it also includes PoissonV where the expectation lambda is a vector. This doesn&#8217;t quite
+fit the usual distribution framework, and we plan on implementing this as a one-off array.</p>
+<dl class="class">
+<dt id="mklRandom.MKLError">
+<em class="property">class </em><code class="descname">MKLError</code>: Error<a class="headerlink" href="#mklRandom.MKLError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An error class for MKL library errors</p>
+<dl class="attribute">
+<dt id="mklRandom.MKLError.status">
+<em class="property">var </em><code class="descname">status</code>: c_int<a class="headerlink" href="#mklRandom.MKLError.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLError.init">
+<em class="property">proc </em><code class="descname">init</code><span class="sig-paren">(</span><em>s: c_int</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.MKLError.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLError.message">
+<em class="property">override proc </em><code class="descname">message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.MKLError.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mklRandom.RNGError">
+<em class="property">class </em><code class="descname">RNGError</code>: Error<a class="headerlink" href="#mklRandom.RNGError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An error class for more generic errors</p>
+<dl class="attribute">
+<dt id="mklRandom.RNGError.err">
+<em class="property">var </em><code class="descname">err</code>: string<a class="headerlink" href="#mklRandom.RNGError.err" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.RNGError.init">
+<em class="property">proc </em><code class="descname">init</code><span class="sig-paren">(</span><em>err1: string</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.RNGError.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.RNGError.message">
+<em class="property">override proc </em><code class="descname">message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.RNGError.message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="enum">
+<dt id="mklRandom.BRNG">
+<em class="property">enum </em><code class="descname">BRNG</code> { MRG32K3A, WH, MT19937, MT2203, SFMT19937 }<a class="headerlink" href="#mklRandom.BRNG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define the basic random number engines.</p>
+<p>We currently don&#8217;t implement all, especially
+since we require skipAhead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="mklRandom.BRNG2Int">
+<em class="property">proc </em><code class="descname">BRNG2Int</code><span class="sig-paren">(</span><em>t: BRNG</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.BRNG2Int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.MKLRandomStream">
+<em class="property">record </em><code class="descname">MKLRandomStream</code><a class="headerlink" href="#mklRandom.MKLRandomStream" title="Permalink to this definition">¶</a></dt>
+<dd><p>A holder for an MKL stream.</p>
+<p>This lets you directly work with the stream object, which
+can be useful if what you want to do doesn&#8217;t quite fit into
+the workflows defined by the MKLRandomStream class.</p>
+<p>In particular, this is useful if one is using a leapfrog scheme.</p>
+<p>Since these are nothing but wrappers around a C pointer, these are
+by necessity local objects. Also note the record semantics, these aren&#8217;t
+meant to be passed around.</p>
+<dl class="attribute">
+<dt id="mklRandom.MKLRandomStream.stream">
+<em class="property">var </em><code class="descname">stream</code>: VSLStreamStatePtr<a class="headerlink" href="#mklRandom.MKLRandomStream.stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.init">
+<em class="property">proc </em><code class="descname">init</code><span class="sig-paren">(</span><em>iseed: integral</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.MKLRandomStream.init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize with the MRG32K3A generator</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">proc </em><code class="descname">init</code><span class="sig-paren">(</span><em>t: BRNG</em>, <em>iseed: integral</em>, <em>istream: integral = 0</em><span class="sig-paren">)</span></dt>
+<dd><p>Initialize with the appropriate type, with seed iseed.</p>
+<p>If the generator supports multiple streams, you can optionally initialize the stream.
+Streams run from 0.. #NStreamMax</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.save">
+<em class="property">proc </em><code class="descname">save</code><span class="sig-paren">(</span><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save stream state. Returns an array with the stream state saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.load">
+<em class="property">proc </em><code class="descname">load</code><span class="sig-paren">(</span><em>state: [?D] c_char</em><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load stream state. Updates the random stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.skipAhead">
+<em class="property">proc </em><code class="descname">skipAhead</code><span class="sig-paren">(</span><em>skip: integral</em><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.skipAhead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Skip ahead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.leapFrog">
+<em class="property">proc </em><code class="descname">leapFrog</code><span class="sig-paren">(</span><em>istream: integral</em>, <em>nstreams: integral</em><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.leapFrog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize for leapfrogging.</p>
+<p>Not too many generators support this (see the MKL documentation),
+but it could be useful for quasi-random sequences).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>const dist</em>, <em>arr: [?Dom] ?T</em><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.fill" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill an array with random numbers from distribution dist</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.generate">
+<em class="property">proc </em><code class="descname">generate</code><span class="sig-paren">(</span><em>const dist</em>, <em>blocksize: integral</em><span class="sig-paren">)</span> throws<a class="headerlink" href="#mklRandom.MKLRandomStream.generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an array of blocksize random numbers from distribution dist</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<em class="property">proc </em><code class="descname">generate</code><span class="sig-paren">(</span><em>const dist</em><span class="sig-paren">)</span> throws</dt>
+<dd><p>Generate a single random number from distribution dist.</p>
+<p>This is not a very efficient way of testing the code.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.MKLRandomStream.deinit">
+<em class="property">proc </em><code class="descname">deinit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.MKLRandomStream.deinit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Gaussian">
+<em class="property">record </em><code class="descname">Gaussian</code><a class="headerlink" href="#mklRandom.Gaussian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gaussian distribution, with mean mu and
+variance sigma.</p>
+<p>This is currently hardcoded to return doubles, and
+to use the ICDF method.</p>
+<dl class="attribute">
+<dt id="mklRandom.Gaussian.mu">
+<em class="property">var </em><code class="descname">mu</code>: real<a class="headerlink" href="#mklRandom.Gaussian.mu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Gaussian.sigma">
+<em class="property">var </em><code class="descname">sigma</code>: mu.type<a class="headerlink" href="#mklRandom.Gaussian.sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gaussian.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Gaussian.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gaussian.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Gaussian.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Uniform">
+<em class="property">record </em><code class="descname">Uniform</code><a class="headerlink" href="#mklRandom.Uniform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uniform distribution between [a,b)</p>
+<dl class="attribute">
+<dt id="mklRandom.Uniform.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Uniform.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Uniform.b">
+<em class="property">var </em><code class="descname">b</code>: a.type<a class="headerlink" href="#mklRandom.Uniform.b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Uniform.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Uniform.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Uniform.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Uniform.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Exponential">
+<em class="property">record </em><code class="descname">Exponential</code><a class="headerlink" href="#mklRandom.Exponential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exponential with displacement a and scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Exponential.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Exponential.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Exponential.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Exponential.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Exponential.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Exponential.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Exponential.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Exponential.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Laplace">
+<em class="property">record </em><code class="descname">Laplace</code><a class="headerlink" href="#mklRandom.Laplace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Laplace with displacement a and scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Laplace.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Laplace.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Laplace.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Laplace.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Laplace.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Laplace.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Laplace.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Laplace.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Weibull">
+<em class="property">record </em><code class="descname">Weibull</code><a class="headerlink" href="#mklRandom.Weibull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Weibull with displacement a, shape alpha, scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Weibull.alpha">
+<em class="property">var </em><code class="descname">alpha</code>: real<a class="headerlink" href="#mklRandom.Weibull.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Weibull.a">
+<em class="property">var </em><code class="descname">a</code>: alpha.type<a class="headerlink" href="#mklRandom.Weibull.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Weibull.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Weibull.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Weibull.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Weibull.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Weibull.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Weibull.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Cauchy">
+<em class="property">record </em><code class="descname">Cauchy</code><a class="headerlink" href="#mklRandom.Cauchy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cauchy with displacement a, and scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Cauchy.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Cauchy.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Cauchy.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Cauchy.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Cauchy.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Cauchy.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Cauchy.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Cauchy.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Rayleigh">
+<em class="property">record </em><code class="descname">Rayleigh</code><a class="headerlink" href="#mklRandom.Rayleigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rayleigh with displacement a, and scale factor beta.</p>
+<p>The usual definition of the Rayleigh distribution has 2sigma^2 in
+the denominator of the exponential, which here is just beta^2.</p>
+<dl class="attribute">
+<dt id="mklRandom.Rayleigh.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Rayleigh.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Rayleigh.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Rayleigh.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Rayleigh.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Rayleigh.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Rayleigh.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Rayleigh.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Lognormal">
+<em class="property">record </em><code class="descname">Lognormal</code><a class="headerlink" href="#mklRandom.Lognormal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lognormal with a=average of subject normal, sigma=deviation of subject
+normal, b=displacement and beta=scalefactor.</p>
+<p>&#8220;a&#8221; and sigma are the usual parameters of a lognormal distribution,
+with b=0 and beta=1.</p>
+<dl class="attribute">
+<dt id="mklRandom.Lognormal.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Lognormal.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Lognormal.sigma">
+<em class="property">var </em><code class="descname">sigma</code>: a.type<a class="headerlink" href="#mklRandom.Lognormal.sigma" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Lognormal.b">
+<em class="property">var </em><code class="descname">b</code>: real<a class="headerlink" href="#mklRandom.Lognormal.b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Lognormal.beta">
+<em class="property">var </em><code class="descname">beta</code>: b.type<a class="headerlink" href="#mklRandom.Lognormal.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Lognormal.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Lognormal.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Lognormal.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Lognormal.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Gumbel">
+<em class="property">record </em><code class="descname">Gumbel</code><a class="headerlink" href="#mklRandom.Gumbel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gumbel with displacement a, and scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Gumbel.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Gumbel.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Gumbel.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Gumbel.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gumbel.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Gumbel.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gumbel.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Gumbel.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Gamma">
+<em class="property">record </em><code class="descname">Gamma</code><a class="headerlink" href="#mklRandom.Gamma" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gamma with displacement a, shape alpha, scale factor beta</p>
+<dl class="attribute">
+<dt id="mklRandom.Gamma.alpha">
+<em class="property">var </em><code class="descname">alpha</code>: real<a class="headerlink" href="#mklRandom.Gamma.alpha" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Gamma.a">
+<em class="property">var </em><code class="descname">a</code>: alpha.type<a class="headerlink" href="#mklRandom.Gamma.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Gamma.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Gamma.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gamma.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Gamma.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Gamma.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Gamma.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Beta">
+<em class="property">record </em><code class="descname">Beta</code><a class="headerlink" href="#mklRandom.Beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Beta with p,q shape parameters, a=displacement, and beta scalefactor.</p>
+<p>Note that the canonical Beta distribution has a=0, beta=1. This version
+shifts the nonzero range to [a,a+beta)</p>
+<dl class="attribute">
+<dt id="mklRandom.Beta.p">
+<em class="property">var </em><code class="descname">p</code>: real<a class="headerlink" href="#mklRandom.Beta.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Beta.q">
+<em class="property">var </em><code class="descname">q</code>: p.type<a class="headerlink" href="#mklRandom.Beta.q" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Beta.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Beta.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Beta.beta">
+<em class="property">var </em><code class="descname">beta</code>: a.type<a class="headerlink" href="#mklRandom.Beta.beta" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Beta.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Beta.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Beta.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Beta.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.ChiSquare">
+<em class="property">record </em><code class="descname">ChiSquare</code><a class="headerlink" href="#mklRandom.ChiSquare" title="Permalink to this definition">¶</a></dt>
+<dd><p>ChiSquare with nu degrees of freedom (int(32))</p>
+<dl class="attribute">
+<dt id="mklRandom.ChiSquare.nu">
+<em class="property">var </em><code class="descname">nu</code>: int<a class="headerlink" href="#mklRandom.ChiSquare.nu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.ChiSquare.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.ChiSquare.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.ChiSquare.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_double)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.ChiSquare.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.UniformDiscrete">
+<em class="property">record </em><code class="descname">UniformDiscrete</code><a class="headerlink" href="#mklRandom.UniformDiscrete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uniform discrete distribution, with integer bounds [a,b)</p>
+<p>Bounds should be max int(32).</p>
+<dl class="attribute">
+<dt id="mklRandom.UniformDiscrete.a">
+<em class="property">var </em><code class="descname">a</code>: int<a class="headerlink" href="#mklRandom.UniformDiscrete.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.UniformDiscrete.b">
+<em class="property">var </em><code class="descname">b</code>: a.type<a class="headerlink" href="#mklRandom.UniformDiscrete.b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.UniformDiscrete.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.UniformDiscrete.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.UniformDiscrete.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.UniformDiscrete.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Bernoulli">
+<em class="property">record </em><code class="descname">Bernoulli</code><a class="headerlink" href="#mklRandom.Bernoulli" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bernoulli with success probability p of a trial</p>
+<dl class="attribute">
+<dt id="mklRandom.Bernoulli.p">
+<em class="property">var </em><code class="descname">p</code>: real<a class="headerlink" href="#mklRandom.Bernoulli.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Bernoulli.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Bernoulli.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Bernoulli.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Bernoulli.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Geometric">
+<em class="property">record </em><code class="descname">Geometric</code><a class="headerlink" href="#mklRandom.Geometric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Geometric with success probability p of a trial</p>
+<dl class="attribute">
+<dt id="mklRandom.Geometric.p">
+<em class="property">var </em><code class="descname">p</code>: real<a class="headerlink" href="#mklRandom.Geometric.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Geometric.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Geometric.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Geometric.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Geometric.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Binomial">
+<em class="property">record </em><code class="descname">Binomial</code><a class="headerlink" href="#mklRandom.Binomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binomial with ntrial trials, and success probability p of a trial</p>
+<dl class="attribute">
+<dt id="mklRandom.Binomial.ntrial">
+<em class="property">var </em><code class="descname">ntrial</code>: int<a class="headerlink" href="#mklRandom.Binomial.ntrial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Binomial.p">
+<em class="property">var </em><code class="descname">p</code>: real<a class="headerlink" href="#mklRandom.Binomial.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Binomial.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Binomial.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Binomial.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Binomial.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Hypergeometric">
+<em class="property">record </em><code class="descname">Hypergeometric</code><a class="headerlink" href="#mklRandom.Hypergeometric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hypergeometric with lot size l, size of sampling without
+replacement s, and number of marked elements m.</p>
+<dl class="attribute">
+<dt id="mklRandom.Hypergeometric.l">
+<em class="property">var </em><code class="descname">l</code>: int<a class="headerlink" href="#mklRandom.Hypergeometric.l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Hypergeometric.s">
+<em class="property">var </em><code class="descname">s</code>: int<a class="headerlink" href="#mklRandom.Hypergeometric.s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Hypergeometric.m">
+<em class="property">var </em><code class="descname">m</code>: int<a class="headerlink" href="#mklRandom.Hypergeometric.m" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Hypergeometric.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Hypergeometric.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Hypergeometric.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Hypergeometric.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Poisson">
+<em class="property">record </em><code class="descname">Poisson</code><a class="headerlink" href="#mklRandom.Poisson" title="Permalink to this definition">¶</a></dt>
+<dd><p>Poisson distribution, with scale factor lambda</p>
+<dl class="attribute">
+<dt id="mklRandom.Poisson.lam">
+<em class="property">var </em><code class="descname">lam</code>: real<a class="headerlink" href="#mklRandom.Poisson.lam" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Poisson.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Poisson.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Poisson.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Poisson.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="record">
+<dt id="mklRandom.Negbinomial">
+<em class="property">record </em><code class="descname">Negbinomial</code><a class="headerlink" href="#mklRandom.Negbinomial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Negative Binomial, with a and p distribution parameters.</p>
+<dl class="attribute">
+<dt id="mklRandom.Negbinomial.a">
+<em class="property">var </em><code class="descname">a</code>: real<a class="headerlink" href="#mklRandom.Negbinomial.a" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mklRandom.Negbinomial.p">
+<em class="property">var </em><code class="descname">p</code>: real<a class="headerlink" href="#mklRandom.Negbinomial.p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Negbinomial.dtype">
+<em class="property">proc </em><code class="descname">dtype</code> type<a class="headerlink" href="#mklRandom.Negbinomial.dtype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mklRandom.Negbinomial.fill">
+<em class="property">proc </em><code class="descname">fill</code><span class="sig-paren">(</span><em>stream: VSLStreamStatePtr</em>, <em>n: c_int</em>, <em>arr: c_ptr(c_int)</em><span class="sig-paren">)</span><a class="headerlink" href="#mklRandom.Negbinomial.fill" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../../../../../index.html" class="btn btn-neutral" title="chpldoc documentation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, .
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+  
+ 
+
+
+
+</body>
+</html>

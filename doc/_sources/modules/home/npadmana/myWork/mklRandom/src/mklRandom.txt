@@ -1,0 +1,463 @@
+.. default-domain:: chpl
+
+.. module:: mklRandom
+   :synopsis: This module provides access to the MKL VSL random number generation libraries.
+
+mklRandom
+=========
+**Usage**
+
+.. code-block:: chapel
+
+   use mklRandom;
+
+This module provides access to the MKL VSL random number generation libraries.
+
+Compilation
+-----------
+Include the appropriate flags for linking with MKL on your system. The MKL
+link line advisor is useful for this. This requires the 2019 Release 3 version
+of MKL or later.
+
+Types:
+------
+For now, real types are assumed to be c_double==real(64) and integer types are
+c_int==int(32). In a lot of the library, we use the Chapel int, and the user
+is expected to ensure that these are appropriately bounded.
+
+Performance:
+------------
+It is advantageous to generate a large number of random numbers at the same time. While
+we offer a method to generate single random numbers, that is not optimal from a performance
+standpoint.
+
+Parallelization strategies:
+---------------------------
+NOTE : Given that the appropriate parallelization strategy is quite sensitive to the exact
+application, we do not implement a default parallelization strategy but leave that up to the
+user. We highlight some demonstrations of these in the test codes.
+
+NOTE : We recommend reading the Intel Notes on Vector Statistics for more details; we largely do not
+duplicate this information here.
+
+There are three parallelization strategies we support :
+
+1. Independent streams : One can initialize each stream differently. Also the WH and MT2203
+   generators support multiple streams (273 and 6024 respectively) and we support initializing
+   these with those streams.
+2. Skip Ahead : A large number of generators support skipping ahead. This is a convenient way
+   to parallelize, if you know how many random numbers you need.
+3. Leap Frog : One can interleave the random number streams. This is useful when you know the
+   number of streams required (and this is a relatively small number).
+
+NOTE : For the skipAhead methods, it is important to remember that this applies to the underlying
+stream and not the distribution. Generating a random variate from a distribution can sometimes
+require more than one basic random number.
+
+Distributed Arrays
+------------------
+The fill method currently does not support distributed arrays. We leave it up to the user
+to fill these in. In particular, some care needs to be taken if reproducibility is to be guaranteed.
+We plan to include some examples of how to do this.
+
+Multivariate Distributions
+--------------------------
+MKL currently includes GaussianMV and Multinomial multivariate distributions. These are currently
+not implemented, although this is planned.
+
+In addition, it also includes PoissonV where the expectation lambda is a vector. This doesn't quite
+fit the usual distribution framework, and we plan on implementing this as a one-off array.
+
+
+.. class:: MKLError : Error
+
+   An error class for MKL library errors 
+
+
+   .. attribute:: var status: c_int
+
+   .. method:: proc init(s: c_int)
+
+   .. method:: override proc message()
+
+.. class:: RNGError : Error
+
+   An error class for more generic errors 
+
+
+   .. attribute:: var err: string
+
+   .. method:: proc init(err1: string)
+
+   .. method:: override proc message()
+
+.. enum:: enum BRNG { MRG32K3A, WH, MT19937, MT2203, SFMT19937 }
+
+   Define the basic random number engines.
+   
+   We currently don't implement all, especially
+   since we require skipAhead.
+   
+
+
+.. function:: proc BRNG2Int(t: BRNG)
+
+.. record:: MKLRandomStream
+
+   A holder for an MKL stream.
+   
+   This lets you directly work with the stream object, which
+   can be useful if what you want to do doesn't quite fit into
+   the workflows defined by the MKLRandomStream class.
+   
+   In particular, this is useful if one is using a leapfrog scheme.
+   
+   Since these are nothing but wrappers around a C pointer, these are
+   by necessity local objects. Also note the record semantics, these aren't
+   meant to be passed around.
+   
+   
+   
+
+
+   .. attribute:: var stream: VSLStreamStatePtr
+
+   .. method:: proc init(iseed: integral)
+
+      Initialize with the MRG32K3A generator 
+
+   .. method:: proc init(t: BRNG, iseed: integral, istream: integral = 0)
+
+      Initialize with the appropriate type, with seed iseed.
+      
+      If the generator supports multiple streams, you can optionally initialize the stream.
+      Streams run from 0.. #NStreamMax
+      
+
+   .. method:: proc save() throws
+
+      Save stream state. Returns an array with the stream state saved.
+
+   .. method:: proc load(state: [?D] c_char) throws
+
+      Load stream state. Updates the random stream 
+
+   .. method:: proc skipAhead(skip: integral) throws
+
+      Skip ahead 
+
+   .. method:: proc leapFrog(istream: integral, nstreams: integral) throws
+
+      Initialize for leapfrogging.
+      
+      Not too many generators support this (see the MKL documentation),
+      but it could be useful for quasi-random sequences).
+      
+
+   .. method:: proc fill(const dist, arr: [?Dom] ?T) throws
+
+      Fill an array with random numbers from distribution dist
+
+   .. method:: proc generate(const dist, blocksize: integral) throws
+
+      Generate an array of blocksize random numbers from distribution dist 
+
+   .. method:: proc generate(const dist) throws
+
+      Generate a single random number from distribution dist.
+      
+      This is not a very efficient way of testing the code.
+      
+
+   .. method:: proc deinit()
+
+.. record:: Gaussian
+
+   Gaussian distribution, with mean mu and
+   variance sigma.
+   
+   This is currently hardcoded to return doubles, and
+   to use the ICDF method.
+   
+
+
+   .. attribute:: var mu: real
+
+   .. attribute:: var sigma: mu.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Uniform
+
+   Uniform distribution between [a,b)
+   
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var b: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Exponential
+
+   Exponential with displacement a and scale factor beta
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Laplace
+
+   Laplace with displacement a and scale factor beta
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Weibull
+
+   Weibull with displacement a, shape alpha, scale factor beta
+   
+
+
+   .. attribute:: var alpha: real
+
+   .. attribute:: var a: alpha.type 
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Cauchy
+
+   Cauchy with displacement a, and scale factor beta
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Rayleigh
+
+   Rayleigh with displacement a, and scale factor beta.
+   
+   The usual definition of the Rayleigh distribution has 2\sigma^2 in
+   the denominator of the exponential, which here is just \beta^2.
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Lognormal
+
+   Lognormal with a=average of subject normal, sigma=deviation of subject
+   normal, b=displacement and beta=scalefactor.
+   
+   "a" and sigma are the usual parameters of a lognormal distribution,
+   with b=0 and beta=1.
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var sigma: a.type 
+
+   .. attribute:: var b: real
+
+   .. attribute:: var beta: b.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Gumbel
+
+   Gumbel with displacement a, and scale factor beta
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Gamma
+
+   Gamma with displacement a, shape alpha, scale factor beta
+   
+
+
+   .. attribute:: var alpha: real
+
+   .. attribute:: var a: alpha.type 
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: Beta
+
+   Beta with p,q shape parameters, a=displacement, and beta scalefactor.
+   
+   Note that the canonical Beta distribution has a=0, beta=1. This version
+   shifts the nonzero range to [a,a+beta)
+   
+
+
+   .. attribute:: var p: real
+
+   .. attribute:: var q: p.type 
+
+   .. attribute:: var a: real
+
+   .. attribute:: var beta: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: ChiSquare
+
+   ChiSquare with nu degrees of freedom (int(32))
+   
+
+
+   .. attribute:: var nu: int
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_double))
+
+.. record:: UniformDiscrete
+
+   Uniform discrete distribution, with integer bounds [a,b)
+   
+   Bounds should be max int(32).
+   
+
+
+   .. attribute:: var a: int
+
+   .. attribute:: var b: a.type 
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Bernoulli
+
+   Bernoulli with success probability p of a trial
+   
+
+
+   .. attribute:: var p: real
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Geometric
+
+   Geometric with success probability p of a trial
+   
+
+
+   .. attribute:: var p: real
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Binomial
+
+   Binomial with ntrial trials, and success probability p of a trial
+   
+
+
+   .. attribute:: var ntrial: int
+
+   .. attribute:: var p: real
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Hypergeometric
+
+   Hypergeometric with lot size l, size of sampling without
+   replacement s, and number of marked elements m.
+   
+
+
+   .. attribute:: var l: int
+
+   .. attribute:: var s: int
+
+   .. attribute:: var m: int
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Poisson
+
+   Poisson distribution, with scale factor lambda
+   
+
+
+   .. attribute:: var lam: real
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
+.. record:: Negbinomial
+
+   Negative Binomial, with a and p distribution parameters.
+   
+
+
+   .. attribute:: var a: real
+
+   .. attribute:: var p: real
+
+   .. method:: proc dtype type
+
+   .. method:: proc fill(stream: VSLStreamStatePtr, n: c_int, arr: c_ptr(c_int))
+
