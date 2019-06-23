@@ -1,6 +1,6 @@
 
 [brick]
-author = "nikhil.padmanabhan@gmail.com"
+authors = ["nikhil.padmanabhan@gmail.com"]
 name = "mklRandom"
 version = "0.1.0"
 chplVersion = "1.19.0"
