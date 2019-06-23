@@ -4,10 +4,9 @@ author = "nikhil.padmanabhan@gmail.com"
 name = "mklRandom"
 version = "0.1.0"
 chplVersion = "1.19.0"
+compopts='--ldflags "-Wl,--no-as-needed" -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl'
 
 [dependencies]
 
 
 [external]
-#We require Intel MKL, but this is failing on my laptop right now.
-#intel-mkl = "2019.3.199"

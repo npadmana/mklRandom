@@ -1,5 +1,7 @@
 use mklRandom;
 
+var exitCode=0;
+
 config const nblock=10;
 config const blocksize=1000;
 config const iseed=10;
@@ -27,6 +29,8 @@ testLoadSave(BRNG.SFMT19937);
 testLoadSave(BRNG.WH,12);
 testLoadSave(BRNG.MT2203);
 testLoadSave(BRNG.MT2203,1023);
+
+exit(exitCode);
 
 
 // A simple demonstration of skipAhead, with a
@@ -102,7 +106,11 @@ proc testLeapFrog(t : BRNG, istream=0) {
 
 
 proc passfail(diff, thresh) {
-  if diff > thresh then return "FAIL"; else return "PASS";
+  if diff > thresh {
+    exitCode += 1;
+    return "FAIL";
+  }
+  return "PASS";
 }
 
 

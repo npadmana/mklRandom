@@ -6,6 +6,8 @@ config const absThresh=0.2;
 config const relThresh=0.02;
 config const epsilon=1.0e-10;
 
+var exitCode=0;
+
 // Continuous distributions
 runOne(new Uniform(-3.0,5.0), "Uniform", (1.0, 5.333,0.0,51.2),BRNG.SFMT19937, 10);
 runOne(new Gaussian(1.0,1.0), "Gaussian", (1.0,1.0,0.0,3.0), BRNG.SFMT19937, 10);
@@ -36,6 +38,8 @@ runOne(new Poisson(10.7),"Poisson(10.7)",(10.7,10.7,10.7,354.17),BRNG.SFMT19937,
 runOne(new Poisson(1.2),"Poisson(1.2)",(1.2,1.2,1.2,5.52),BRNG.SFMT19937,10);
 runOne(new Negbinomial(4.0,0.9),"Negbinomial",(0.444444, 0.493827, 0.603567, 1.59122),BRNG.SFMT19937,10);
 
+exit(exitCode);
+
 
 proc runOne(dist, name, expected, t : BRNG, iseed, istream=0) {
   var r1 = new MKLRandomStream(t, iseed, istream);
@@ -53,7 +57,12 @@ proc runCauchy(t : BRNG, iseed, istream=0) {
   writef("Cauchy          :  <sqrt(x)>=%10.3er, expected=%10.3er ",val,sqrt(2.0));
   writef(" "*11);
   const err = abs(val/sqrt(2.0)-1.0);
-  if err > relThresh then writef("FAIL\n"); else writef("PASS\n");
+  if err > relThresh {
+    writef("FAIL\n");
+    exitCode += 1;
+  } else {
+    writef("PASS\n");
+  }
 }
 
 proc stats(arr, name, expected) {
@@ -70,8 +79,12 @@ proc stats(arr, name, expected) {
     writef("%10.3er ",tup(ii));
   }
   writef(" "*10);
-  if good then writef("PASS"); else writef("FAIL");
-  writef("\n");
+  if good {
+    writef("PASS\n");
+  } else {
+    writef("FAIL\n");
+    exitCode += 1;
+  }
 }
 
 proc test(x,y) {
